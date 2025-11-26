@@ -2,9 +2,9 @@
  * @Author       : Notch-FGJ mail.fgj.com@gmail.com
  * @Date         : 2025-04-07 10:59:49
  * @LastEditors  : Notch-FGJ mail.fgj.com@gmail.com
- * @LastEditTime : 2025-06-24 17:21:03
+ * @LastEditTime : 2025-11-27 17:00:00
  * @FilePath     : \gxnu_hushi_ec\modules\motor\DJIMotor\DJIMotor.hpp
- * @Description  : 大疆电机驱动
+ * @Description  : 大疆电机驱动（GM6020 + CAN1 适配，编译兼容版）
  */
 #pragma once
 #include "../motor_def.hpp"
@@ -49,6 +49,11 @@ public:
     static void DJIMotorControl();
 
     Measure measure_;  ///< 电机测量数据
+    bool    is_online = false;  ///< 电机在线状态标志（cpp中使用）
+    bool    enable_ = false;  ///< 电机使能标志（cpp中控制使能/禁用）
+    float   pid_ref_ = 0.0f;  ///< PID目标值（对应角度目标，cpp中setRef使用）
+    int16_t pid_out_ = 0;     ///< PID输出电流（cpp中计算结果存储）
+    float   reduce_rate_ = 1.0f;  ///< 速率缩减系数（cpp中GM6020适配）
 
 private:
     uint8_t                                                 motor_id_;                    ///< 电机ID
@@ -71,7 +76,7 @@ private:
         // CAN1:
         ICAN::ClassicPacket{0x200, ICAN::Type::STANDARD, {0, 0, 0, 0, 0, 0, 0, 0}},  // M2006/M3508 1-4
         ICAN::ClassicPacket{0x1FF, ICAN::Type::STANDARD, {0, 0, 0, 0, 0, 0, 0, 0}},  // M2006/M3508 5-8
-        ICAN::ClassicPacket{0x1FE, ICAN::Type::STANDARD, {0, 0, 0, 0, 0, 0, 0, 0}},  // GM6020 1-4
+        ICAN::ClassicPacket{0x1FE, ICAN::Type::STANDARD, {0, 0, 0, 0, 0, 0, 0, 0}},  // GM6020 1-4（CAN1 核心组）
         ICAN::ClassicPacket{0x2FE, ICAN::Type::STANDARD, {0, 0, 0, 0, 0, 0, 0, 0}},  // GM6020 5-8
         // CAN2:
         ICAN::ClassicPacket{0x200, ICAN::Type::STANDARD, {0, 0, 0, 0, 0, 0, 0, 0}},  // M2006/M3508 1-4
